@@ -1,0 +1,133 @@
+@charset "UTF-8";
+
+ 	body {
+   		margin: 0px;
+  	}
+.firstBar {
+	    width: 100%;
+	    height: 50px; /* 또는 원하는 높이 */
+	    margin: 0 auto;
+/* 	    background: #95A5AE; 또는 원하는 배경색 */
+		background: black;
+	}
+		.firstMenu a {
+			text-decoration: none;
+			text-decoration-line: none;
+			color: #EDFDFF;
+		}
+	 	.firstMenu { 
+			color:  #EDFDFF;
+			display: flex; 
+			list-style-type: none; 
+			padding: 0px;
+			margin: 0 auto;
+		}
+		#postlounge { /* 최상단 네비게이션바의 포스트 스타일 설정 */
+	/* 		text-align: center;  */
+			font-size: 18px;
+			cursor: pointer;
+			flex-shrink: 0;
+			position: relative;
+			top: 15px;
+			left: 100px;
+		}
+		#btnLogout {
+			border: none;        
+		    outline: none;        /* 포커스 표시 제거 */
+		    text-decoration: none; /* 텍스트 밑줄 제거 */
+		    box-shadow: none;     /* 그림자 제거 */
+	    
+		    /* 버튼의 기본 스타일 초기화 */
+	    	border-radius: 5px;       /* 모서리 둥글게 */
+		    margin: 10;
+	    	padding: 10px 20px;        /* 내부 간격 설정 */
+		    font: inherit;
+		    cursor: pointer;
+		    outline: none; /* 포커스 시 블루 아웃라인 제거 */
+		    
+		    /* 원하는 스타일 설정 */
+		    top: 15px;
+		    position: absolute;
+		    right: 20%;
+		    background: #DDA0DD;
+		    /* 추가 스타일 (예: 폰트, 패딩, 크기 등) */
+		}
+	.secondBar {
+	    width: 100%;
+	    height: 65px; /* 또는 원하는 높이 */
+	   	margin: 0 auto;
+	    background: #DDA0DD; /* .navWrapper2의 배경색 */
+	    position: relative; /* 상대 위치 설정 */
+	}
+		.secondMenu {
+		    width: auto; /* 필요에 따라 조절 */
+		    height: 100%;
+		    position: absolute;
+		    left: 50%;
+		    transform: translateX(-50%); /* 가로 중앙 정렬 */
+		    display: flex;
+		    align-items: center; /* 세로 중앙 정렬 */
+		}
+		.secondMenu button {
+		    flex: 1;
+		    margin: 0 15px; /* 원하는 간격으로 조절 */
+		    
+		     /* 버튼의 기본 스타일 초기화 */
+		    border: none;
+		    padding: 10;
+		    margin: 10;
+		    font: inherit;
+		    cursor: pointer;
+		    outline: none; /* 포커스 시 블루 아웃라인 제거 */
+
+		 /* 원하는 스타일 설정 */
+		    background: black;
+		    color: white;
+ 		    border-radius: 50%;
+		    width: 60px;
+		    height: 60px;
+		    display: flex;
+		    align-items: center;
+		    justify-content: center;
+		    white-space: nowrap; /* 줄 바꿈 방지 */
+		    text-align: center;
+		}
+		.center {
+			border: 0px solid red;
+			width: 60%;
+			height: auto;
+			margin: 0 auto;
+		}
+	 	.box {
+	        text-align: center;
+		}
+		#boxTable {
+		    width: 60%; /* #box의 100% 너비 사용 */
+		    height: 100%; /* #box의 100% 높이 사용 */
+		    border-collapse: collapse;
+		    padding: 0;
+		    margin: 0 auto; /* 외부 여백 제거 */
+		    text-align: center;
+		}
+		td, th {
+		    border-right: 1px solid #000; /* 경계선 스타일 및 색상 설정 */
+		    padding: 8px; /* 셀 안의 여백 설정 (선택 사항) */
+		}
+		.comment {
+			border: 0.7px black solid;
+			width: 60%;
+			margin: 0 auto;
+		}
+
+ 	.board {
+		width: 60%;
+	    height: 500px;
+	   	margin: 20px auto 0;
+	   	border: 1px solid red;
+	   	padding: 0;
+	}
+	.boardTable {
+		border-collapse: collapse;
+	}
+
+	

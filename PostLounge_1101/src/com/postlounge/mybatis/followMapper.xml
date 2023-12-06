@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="friend">
+	<!-- 
+		<insert | delete | update | select 속성="값" 속성="값 ~~>
+			- id 속성 : DAO에서 설정한 값 ▶ session.insert("memberInsert", dto);
+			- parameterType 속성 : 매개 변수 타입(클래스타입, 기본데이터타입) : 생략 가능
+			- 입력 값 표기 : dto.getIrum() → #{dto 內 속성명} ▶ #{irum}
+			- SQL 문장의 마지막에 세미콜론(;)은 입력하지 않는다. 
+			- resultType 속성 : select 쿼리를 수행했을 때 결과 타입
+		</insert | delete | update | select>
+	 -->
+	 
+	<!-- 팔로우 추가하기 -->
+	<insert id="insertFollow" parameterType="FriendVO">
+		INSERT INTO FRIENDS (FRIEND_NUM, MEMBER_IDX, FRIEND_IDX)
+		VALUES (FRIEND_NUM_SEQ.NEXTVAL,
+       		(SELECT MEMBER_IDX FROM MEMBERS 
+       		  WHERE MEMBER_IDX = #{memberIdx}),
+       		(SELECT MEMBER_IDX FROM MEMBERS 
+       		  WHERE MEMBER_IDX = #{friendIdx})
+		)
+	</insert>	
+	
+	<!-- 내 idx값과 작성자 idx값으로 팔로우 중복체크 (이미 친구인 경우 1을 리턴)-->
+	<select id="checkFriendship" parameterType="FriendVO" resultType="int">
+		SELECT COUNT(*) 
+        FROM FRIENDS 
+        WHERE MEMBER_IDX = #{memberIdx}
+          AND FRIEND_IDX = #{friendIdx}
+	</select>
+	
+	<!-- 로그인 유저의 전체 팔로우 정보 조회 -->
+	<select id="selectAll" parameterType="int" resultType="friendListVO">
+		SELECT F.FRIEND_IDX, F.MEMBER_IDX, M.NICKNAME, F.FRIEND_NUM
+			,M.NAME, M.ID, M.MEMBER_FILENAME, M.MEMBER_ORINAME
+		FROM FRIENDS F, MEMBERS M
+		WHERE F.FRIEND_IDX = M.MEMBER_IDX
+		AND F.MEMBER_IDX = #{memberIdx}
+	</select>
+	
+	<!-- 팔로우 삭제하기 -->
+	<delete id="followDelete" parameterType="map">
+		DELETE FROM FRIENDS F
+		WHERE F.FRIEND_IDX = #{friendIdx}
+		AND F.MEMBER_IDX = #{memberIdx}
+	</delete>
+	
+	<!-- 내 idx로 친구들 idx값 확인하기 -->
+	<select id="findIdx" parameterType="int" resultType="friendVO">
+		SELECT FRIEND_NUM, MEMBER_IDX, FRIEND_IDX
+		FROM FRIENDS
+		WHERE MEMBER_IDX = (
+	    	SELECT MEMBER_IDX FROM MEMBERS WHERE MEMBER_IDX = #{membeIdx})
+	</select>
+	
+	<!-- 친구 idx값으로 isDel값 가져오기 -->
+	<select id="findFriendIsdel" parameterType="int" resultType="int">
+		SELECT IS_DEL
+		FROM MEMBERS
+		WHERE MEMBER_IDX = #{memberIdx}
+	</select>
+	
+	<!-- (추가) 팔로잉목록 페이징 처리 (최근에 추가한 친구 순으로) -->
+	<select id="list" resultType="friendListVO" parameterType="map">
+		 SELECT *
+		   FROM (SELECT ROWNUM AS RNUM
+		        , FM.*
+		          FROM (SELECT F.FRIEND_IDX, F.MEMBER_IDX, M.NICKNAME, F.FRIEND_NUM
+							,M.NAME, M.ID, M.MEMBER_FILENAME, M.MEMBER_ORINAME
+		                FROM FRIENDS F, MEMBERS M
+		                WHERE F.FRIEND_IDX = M.MEMBER_IDX
+		                AND F.MEMBER_IDX = #{memberIdx}
+		                ORDER BY FRIEND_IDX DESC)FM
+		        )
+		 WHERE RNUM BETWEEN #{begin} AND #{end}
+	</select>
+	
+	<!-- (추가) 팔로워 목록 가져오기 (FeedCommand에서 사용) -->
+	<select id="selectFollowerList" parameterType="int" resultType="friendListVO">
+		SELECT F.FRIEND_NUM, F.FRIEND_IDX, F.MEMBER_IDX, M.NICKNAME
+			, M.NAME, M.ID, M.MEMBER_FILENAME, M.MEMBER_ORINAME
+			, M.MEMBER_IDX AS MEMBERIDX
+        FROM FRIENDS F
+        JOIN MEMBERS M ON F.MEMBER_IDX = M.MEMBER_IDX
+        WHERE F.FRIEND_IDX = #{memberIdx}
+        ORDER BY F.FRIEND_NUM DESC
+	</select>
+	
+	<!-- (추가) 팔로워목록 페이징처리 (FollowerListCommand에서 사용) -->
+	<select id="getFollowerPagingList" parameterType="map" resultType="friendListVO">
+		SELECT *
+		FROM (
+		    SELECT ROWNUM AS RNUM, FM.FRIEND_NUM, FM.FRIEND_IDX, FM.NICKNAME, FM.NAME, FM.ID, FM.MEMBER_FILENAME, 
+		        FM.MEMBER_ORINAME, FM.MEMBERIDX
+		    FROM (SELECT F.FRIEND_NUM, F.FRIEND_IDX, M.NICKNAME, M.NAME, M.ID, M.MEMBER_FILENAME, M.MEMBER_ORINAME, M.MEMBER_IDX AS MEMBERIDX
+		            FROM FRIENDS F
+		            JOIN MEMBERS M 
+		            ON F.MEMBER_IDX = M.MEMBER_IDX
+		            WHERE F.FRIEND_IDX = #{memberIdx}
+		            ORDER BY F.FRIEND_NUM DESC
+		    ) FM
+		)
+		WHERE RNUM BETWEEN #{begin} AND #{end}
+	</select>
+	
+</mapper>

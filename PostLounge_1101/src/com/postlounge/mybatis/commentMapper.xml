@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="comment">
+	
+	<!-- 
+		<insert | delete | update | select 속성="값" 속성="값 ~~>
+			- id 속성 : DAO에서 설정한 값 ▶ session.insert("memberInsert", dto);
+			- parameterType 속성 : 매개 변수 타입(클래스타입, 기본데이터타입) : 생략 가능
+			- 입력 값 표기 : dto.getIrum() → #{dto 內 속성명} ▶ #{irum}
+			- SQL 문장의 마지막에 세미콜론(;)은 입력하지 않는다. 
+			- resultType 속성 : select 쿼리를 수행했을 때 결과 타입
+		</insert | delete | update | select>
+	 -->
+	
+	<!-- 댓글 작성 -->
+	<insert id="insertComment" parameterType="CommentVO" >
+		INSERT INTO COMMENTS (COMMENT_IDX, MEMBER_IDX, POST_IDX, COMM_DATE, COMM_CONTENT) 
+        VALUES (COMMENT_SEQ.NEXTVAL, #{memberIdx}, #{postIdx}, SYSDATE, #{commContent})
+	</insert>
+	
+	<!-- 댓글 조회 -->
+	<select id="selectComment" parameterType="int" resultType="AllMixVO">
+		SELECT M.NICKNAME, C.COMM_CONTENT, C.COMM_DATE, M.MEMBER_IDX, C.COMMENT_IDX, C.POST_IDX
+		FROM MEMBERS M 
+		INNER JOIN COMMENTS C 
+		ON M.MEMBER_IDX = C.MEMBER_IDX
+		INNER JOIN POSTS P ON P.POST_IDX = C.POST_IDX
+		WHERE P.POST_IDX = #{postIdx}
+		ORDER BY C.COMM_DATE DESC
+	</select>
+	
+	<!-- 댓글 수정 -->
+	<update id="updateComment" parameterType="CommentVO" >
+		UPDATE COMMENTS
+		SET COMM_CONTENT = #{commContent},
+		COMM_DATE = SYSDATE
+		WHERE COMMENT_IDX = #{commentIdx}
+	</update>
+	
+	<!-- 댓글 삭제 -->
+	<delete id="deleteComment" parameterType="int">
+		DELETE FROM COMMENTS
+		WHERE COMMENT_IDX = #{commentIdx}
+	</delete>
+	
+	<!-- 무한스크롤 : 댓글 조회: postIdx, lastCommentIdx -->
+	<select id="getAddComment" resultType="CommentVO" parameterType="map">
+		SELECT COMMENT_IDX, MEMBER_IDX, POST_IDX, COMM_CONTENT, COMM_DATE
+		FROM (
+		    SELECT c.*, ROW_NUMBER() OVER (ORDER BY COMMENT_IDX) AS RN
+		    FROM COMMENTS C
+		    WHERE POST_IDX = #{postIdx}
+		    AND COMMENT_IDX > #{lastCommentIdx} 
+		)
+		WHERE RN BETWEEN 1 AND 5
+		ORDER BY C.COMM_DATE
+	</select>
+	
+	<!-- 댓글정보 가져오기 -->
+	<select id="getCommentInfo" resultType="AllMixVO" parameterType="int">
+		SELECT C.COMMENT_IDX, C.COMM_CONTENT, C.COMM_DATE, M.NAME, M.NICKNAME
+		FROM COMMENTS C
+		INNER JOIN MEMBERS M
+		ON C.MEMBER_IDX = M.MEMBER_IDX
+		WHERE C.COMMENT_IDX = #{commentIdx}
+	</select>
+	
+	<!--[이하영] ========== 댓글 ========== -->
+	<!-- 게시글 1개에 달린 댓글들 조회 -->
+	<select id="onePostComm" resultType="commentVO"
+		parameterType="int"> 
+		SELECT c.COMMENT_IDX, m.NICKNAME, c.COMM_CONTENT, c.COMM_DATE, 
+       		   c.POST_IDX
+		FROM COMMENTS c
+		INNER JOIN MEMBERS m ON c.MEMBER_IDX = m.MEMBER_IDX
+		WHERE POST_IDX = #{postIdx}
+		ORDER BY COMMENT_IDX DESC
+	</select>
+	<!-- @@@ C.끝  -->	
+	
+	<!-- D.관리자 콘솔에서 모아보기를 위한 쿼리문 -->
+	<!-- 댓글 최신순으로 모아보기 -->
+ 	<select id="commBox" resultType="commentVO">
+		SELECT *
+		FROM (SELECT ROWNUM RNUM, c.*
+     		  FROM (SELECT c.*
+            		FROM COMMENTS c
+            		ORDER BY COMM_DATE DESC) c)
+		WHERE RNUM BETWEEN #{begin} AND #{end}
+	</select>
+	
+	<select id="totalCnt" resultType="int">
+		SELECT COUNT(*) FROM COMMENTS
+	</select>
+	
+		<!-- 댓글 다중 선택 삭제! -->
+	<delete id="delCommIdxList" parameterType="list"> 
+		DELETE FROM COMMENTS
+		<where> 
+			COMMENT_IDX IN
+			<foreach collection="list" item="memIdx" index="index" separator="," open="(" close=")"> 
+				#{memIdx}
+			</foreach> 
+		</where> 
+	</delete>
+	<!-- @@@ D.끝@@@ -->
+		
+</mapper>

@@ -1,0 +1,429 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="post">
+	
+	<!-- 
+		<insert | delete | update | select 속성="값" 속성="값 ~~>
+			- id 속성 : DAO에서 설정한 값 ▶ session.insert("memberInsert", dto);
+			- parameterType 속성 : 매개 변수 타입(클래스타입, 기본데이터타입) : 생략 가능
+			- 입력 값 표기 : dto.getIrum() → #{dto 內 속성명} ▶ #{irum}
+			- SQL 문장의 마지막에 세미콜론(;)은 입력하지 않는다. 
+			- resultType 속성 : select 쿼리를 수행했을 때 결과 타입
+		</insert | delete | update | select>
+	 -->
+	<!--==================================--> 
+	<!-- [신민기] 제목,내용,작성자,댓글로 게시물 검색 -->
+	<select id="search" parameterType="map" resultType="AllMixVO">
+		<choose>
+			<when test="idx == 0"> <!-- [이초희] 통합검색 -->
+				SELECT *
+				FROM POSTS P, MEMBERS M
+				WHERE P.MEMBER_IDX = M.MEMBER_IDX
+				AND (P.TITLE LIKE INITCAP('%' || #{keyword} || '%')
+					OR P.POST_CONTENT LIKE INITCAP('%' || #{keyword} || '%')
+					OR M.NAME LIKE INITCAP('%' || #{keyword} || '%'))
+			</when>
+			<when test="idx == 1"> <!-- 제목으로 검색 -->
+				SELECT * 
+				FROM POSTS P
+				INNER JOIN MEMBERS M ON P.MEMBER_IDX = M.MEMBER_IDX
+				WHERE P.TITLE LIKE INITCAP('%'||#{keyword}||'%')
+			</when>
+			<when test="idx == 2"> <!-- 내용으로 검색 -->
+				SELECT * 
+				FROM POSTS P
+				INNER JOIN MEMBERS M ON P.MEMBER_IDX = M.MEMBER_IDX
+				WHERE P.POST_CONTENT LIKE INITCAP('%'||#{keyword}||'%')
+			</when>
+			<when test="idx == 3"> <!-- 작성자으로 검색 -->
+				SELECT * 
+				FROM POSTS P
+				INNER JOIN MEMBERS M ON P.MEMBER_IDX = M.MEMBER_IDX
+				WHERE M.NICKNAME LIKE INITCAP('%'||#{keyword}||'%')
+			</when>
+			<when test="idx == 4"> <!-- 댓글로 검색 -->
+				SELECT * 
+				FROM POSTS P
+				INNER JOIN COMMENTS C ON P.POST_IDX = C.POST_IDX
+				WHERE C.COMM_CONTENT LIKE INITCAP('%'||#{keyword}||'%')
+			</when>
+		</choose>
+		ORDER BY P.POST_DATE DESC
+	</select>
+
+	<!-- 조회 높은 순으로 10개 가져오기 -->
+	<select id="getTopList" resultType="postVO">
+		SELECT * 
+		FROM (
+		SELECT * FROM POSTS P
+		ORDER BY P.HIT DESC, P.POST_DATE DESC
+		) WHERE ROWNUM &lt;= 10
+	</select>
+	
+	<!-- [신민기] 게시물 작성 -->
+<!-- 	<insert id="insertPost" parameterType="PostVO">
+		INSERT INTO POSTS (POST_IDX, TITLE, POST_CONTENT, POST_TYPE)
+		VALUES (POST_SEQ.NEXTVAL, #{title}, #{postContent}, #{postType})
+	</insert> -->
+	
+	<!-- (이초희)
+	아래 수정본과 memberIdx 값 넣는게 다름. 
+	현재 글쓰기 오류 있으니까 위 코드 주석으로 우선 남겨놓음.
+	-->
+	
+	<!-- (수정) 게시물 작성 (사진 추가때문에 수정할 필요 있어보임...)-->
+	<insert id="insertPost" parameterType="PostListVO">
+		<choose>
+			<when test="postType == 0">
+				INSERT INTO POSTS ( 
+   					POST_IDX, TITLE, POST_CONTENT, POST_TYPE, MEMBER_IDX)
+				VALUES (POST_SEQ.NEXTVAL, #{title}, #{postContent}
+					,'FOOD' , #{memberIdx})
+			</when>		
+			<when test="postType == 1">
+				INSERT INTO POSTS ( 
+   					POST_IDX, TITLE, POST_CONTENT, POST_TYPE, MEMBER_IDX)
+				VALUES (POST_SEQ.NEXTVAL, #{title}, #{postContent}
+					,'HEALTH' , #{memberIdx})
+			</when>		
+			<when test="postType == 2">
+				INSERT INTO POSTS ( 
+   					POST_IDX, TITLE, POST_CONTENT, POST_TYPE, MEMBER_IDX)
+				VALUES (POST_SEQ.NEXTVAL, #{title}, #{postContent}
+					,'SPORTS' , #{memberIdx})
+			</when>		
+			<when test="postType == 3">
+				INSERT INTO POSTS ( 
+   					POST_IDX, TITLE, POST_CONTENT, POST_TYPE, MEMBER_IDX)
+				VALUES (POST_SEQ.NEXTVAL, #{title}, #{postContent}
+					,'MUSIC' , #{memberIdx})
+			</when>		
+			<when test="postType == 4">
+				INSERT INTO POSTS ( 
+   					POST_IDX, TITLE, POST_CONTENT, POST_TYPE, MEMBER_IDX)
+				VALUES (POST_SEQ.NEXTVAL, #{title}, #{postContent}
+					,'MOVIE' , #{memberIdx})
+			</when>		
+		</choose>
+	</insert>	
+	
+	<!--==================================-->
+	<!-- [이초희]글 상세보기(작성자idx값 포함) -->
+	<select id="selectOne" parameterType="int" resultType="postListVO">
+		SELECT P.POST_IDX, P.POST_TYPE, P.TITLE, P.POST_CONTENT
+		    , M.NICKNAME, M.MEMBER_IDX	
+		    , P.HIT, P.POST_DATE
+		FROM POSTS P, MEMBERS M
+		WHERE P.MEMBER_IDX = M.MEMBER_IDX
+		AND P.POST_IDX = #{postIdx}
+	</select>
+	
+	<!-- (수정) 최근 5일 게시물 불러오기 
+		(날짜와 조회수순으로 정렬, isDel값이 0 또는 1인 회원글만) -->
+	<select id="getPostList" resultType="postListVO">
+		SELECT P.POST_IDX, P.POST_TYPE, P.TITLE, P.POST_CONTENT
+                , M.NICKNAME, P.HIT, P.POST_DATE, M.IS_DEL
+      	FROM MEMBERS M, 
+        	 (SELECT * FROM POSTS WHERE POST_DATE 
+                  BETWEEN (SYSDATE - 2) AND SYSDATE) P
+      	WHERE P.MEMBER_IDX = M.MEMBER_IDX
+        AND (M.IS_DEL = 0 OR M.IS_DEL = 1)
+     	ORDER BY P.HIT DESC, P.POST_DATE DESC
+	</select>
+	
+	<!-- 내가 팔로우하는 사람의 게시글 목록 가져오기 -->
+	<select id="getFriendsPost" parameterType="int" resultType="postListVO">
+        SELECT P.POST_IDX, P.POST_TYPE, P.TITLE, P.POST_CONTENT
+        	, M.NICKNAME, P.HIT, P.POST_DATE
+			, F.MEMBER_IDX AS MEMBER, F.FRIEND_IDX AS FREIND
+		FROM POSTS P
+		INNER JOIN FRIENDS F 
+		ON P.MEMBER_IDX = F.FRIEND_IDX
+		INNER JOIN MEMBERS M
+		ON P.MEMBER_IDX = M.MEMBER_IDX
+		WHERE F.MEMBER_IDX = #{memberIdx}
+		ORDER BY P.POST_DATE
+	</select>
+	
+	<!--(추가) 게시물 클릭시 조회수 증가시키기 --> 
+	<update id="updateHit" parameterType="int">
+	    UPDATE POSTS
+	    SET HIT = HIT + 1
+	    WHERE POST_IDX = #{postIdx}
+	</update>
+	
+	<!-- (추가) 피드페이지 페이징 처리 -->
+	<select id="list" resultType="postListVO" parameterType="map">
+		SELECT *
+		FROM (SELECT ROWNUM AS RNUM
+		            , PFM.* FROM (
+		            	SELECT P.POST_IDX, P.POST_TYPE, P.TITLE, P.POST_CONTENT
+		            	, M.NICKNAME, P.HIT, P.POST_DATE
+		           		, F.MEMBER_IDX AS MEMBER, F.FRIEND_IDX AS FREIND
+				        FROM POSTS P INNER JOIN FRIENDS F 
+				        ON P.MEMBER_IDX = F.FRIEND_IDX
+				        INNER JOIN MEMBERS M
+				        ON P.MEMBER_IDX = M.MEMBER_IDX
+				        WHERE F.MEMBER_IDX = #{memberIdx}
+				        ORDER BY P.POST_DATE) PFM
+   			 )
+		WHERE RNUM BETWEEN #{begin} AND #{end}
+	</select>
+	
+	<!--==================================-->
+	<!-- [김주현] 카테고리별 글 리스트 가져오기 -->
+	<select id="ctTypelist" parameterType="String" resultType="postListVO">
+	   SELECT P.POST_IDX, P.TITLE, P.POST_TYPE, M.NICKNAME AS NICKNAME, P.POST_DATE,
+       		P.POST_FILENAME, P.POST_ORINAME, P.POST_CONTENT, P.HIT
+       FROM POSTS P JOIN MEMBERS M ON P.MEMBER_IDX = M.MEMBER_IDX
+       WHERE UPPER(P.POST_TYPE) LIKE '%' || UPPER(#{type}) || '%'
+       ORDER BY P.HIT DESC, P.POST_DATE DESC
+	</select>
+	
+	<!-- 내가 작성한 게시글 보기 -->
+	<select id="getMyPostList" parameterType="String" resultType="postListVO">
+       SELECT P.POST_IDX, P.POST_TYPE, P.TITLE, P.POST_CONTENT
+       	  	 , M.NAME, P.HIT, P.POST_DATE
+       FROM POSTS P, MEMBERS M
+       WHERE P.MEMBER_IDX = M.MEMBER_IDX
+       AND M.ID = '${id}'
+    </select>
+
+    <!-- [김주현] 내 게시글 수정 -->
+	<update id="updatePost" parameterType="postVO">
+		UPDATE POSTS
+    	   SET TITLE = #{title},
+		       POST_CONTENT = #{postContent},
+		       POST_DATE = SYSDATE
+    	 WHERE POST_IDX = #{postIdx}
+	</update>
+	
+
+	<!-- [김주현] 내 게시글 삭제 -->
+	<delete id="deleteSelect" parameterType="int">
+		DELETE 
+		FROM POSTS
+		WHERE POST_IDX = #{postIdx}
+	</delete>
+    
+    <!--[이하영]==================================-->
+<!-- @@@ A.관리자 메인화면에서 오늘 업데이트 된 게시글 '건수'를 조회하는 쿼리 -->
+
+	<!-- 오늘 추가된 게시글 수 조회 -->
+	<select id="cntPostAll" resultType="int">
+		SELECT COUNT(*)
+		FROM POSTS
+ 		WHERE TRUNC(POST_DATE) = TRUNC(SYSDATE)
+	</select>
+	
+	<!-- 오늘 추가된 푸드 카테고리 게시글 수 조회 -->
+	<select id="cntFoodAll" resultType="int">
+		SELECT COUNT(*)
+		FROM POSTS
+ 		WHERE TRUNC(POST_DATE) = TRUNC(SYSDATE)
+ 		AND POST_TYPE = 'FOOD'
+	</select>
+	
+	<!-- 오늘 추가된 건강 카테고리 게시글 수 조회 -->
+	<select id="cntHealthAll" resultType="int">
+		SELECT COUNT(*)
+		FROM POSTS
+ 		WHERE TRUNC(POST_DATE) = TRUNC(SYSDATE)
+ 		AND POST_TYPE = 'HEALTH'
+	</select>
+	
+	<!-- 오늘 추가된 음악 카테고리 게시글 수 조회 -->
+	<select id="cntMusicAll" resultType="int">
+		SELECT COUNT(*)
+		FROM POSTS
+ 		WHERE TRUNC(POST_DATE) = TRUNC(SYSDATE)
+ 		AND POST_TYPE = 'MUSIC'
+	</select>
+	
+	<!-- 오늘 추가된 스포츠 카테고리 게시글 수 조회 -->
+	<select id="cntSportAll" resultType="int">
+		SELECT COUNT(*)
+		FROM POSTS
+ 		WHERE TRUNC(POST_DATE) = TRUNC(SYSDATE)
+ 		AND POST_TYPE = 'SPORTS'
+	</select>
+	
+	<!-- 오늘 추가된 영화 카테고리 게시글 수 조회 -->
+	<select id="cntMovieAll" resultType="int">
+		SELECT COUNT(*)
+		FROM POSTS
+ 		WHERE TRUNC(POST_DATE) = TRUNC(SYSDATE)
+ 		AND POST_TYPE = 'MOVIE'
+	</select>
+<!-- @@@ A. 끝 @@@ -->
+
+<!-- @@@ B. 관리자 메인화면에서의 게시판을 위한 쿼리 @@@ -->
+
+	<!-- 최신글 순서대로 전체 게시글 조회 -->
+ 	<select id="datePost" resultType="PostVO">
+		SELECT p.POST_IDX, p.TITLE, m.NICKNAME, p.POST_DATE, p.HIT
+		FROM POSTS p INNER JOIN MEMBERS m ON p.MEMBER_IDX = m.MEMBER_IDX
+		ORDER BY p.POST_DATE DESC
+	</select>
+	
+	<!-- 푸드 카테고리 최근 순서대로 게시글 조회-->
+	<select id="datePostFood" resultType="PostVO">
+		SELECT p.POST_IDX, p.TITLE, m.NICKNAME, p.POST_DATE, p.HIT
+		FROM POSTS p INNER JOIN MEMBERS m ON p.MEMBER_IDX = m.MEMBER_IDX
+        WHERE p.POST_TYPE = 'FOOD'
+		ORDER BY p.POST_DATE DESC
+	</select>
+	
+	<!-- 건강 카테고리 최근 순서대로 게시글 조회-->
+	<select id="datePostHealth" resultType="PostVO">
+		SELECT p.POST_IDX, p.TITLE, m.NICKNAME, p.POST_DATE, p.HIT
+		FROM POSTS p INNER JOIN MEMBERS m ON p.MEMBER_IDX = m.MEMBER_IDX
+        WHERE p.POST_TYPE = 'HEALTH'
+		ORDER BY p.POST_DATE DESC
+	</select>
+	
+	<!-- 음악 카테고리 최근 순서대로 게시글 조회-->
+	<select id="datePostMusic" resultType="PostVO">
+		SELECT p.POST_IDX, p.TITLE, m.NICKNAME, p.POST_DATE, p.HIT
+		FROM POSTS p INNER JOIN MEMBERS m ON p.MEMBER_IDX = m.MEMBER_IDX
+        WHERE p.POST_TYPE = 'MUSIC'
+		ORDER BY p.POST_DATE DESC
+	</select>
+	
+	<!-- 스포츠 카테고리 최근 순서대로 게시글 조회-->
+	<select id="datePostSport" resultType="PostVO">
+		SELECT p.POST_IDX, p.TITLE, m.NICKNAME, p.POST_DATE, p.HIT
+		FROM POSTS p INNER JOIN MEMBERS m ON p.MEMBER_IDX = m.MEMBER_IDX
+        WHERE p.POST_TYPE = 'SPORTS'
+		ORDER BY p.POST_DATE DESC
+	</select>
+	
+	<!-- 영화 카테고리 최근 순서대로 게시글 조회-->
+	<select id="datePostMovie" resultType="PostVO">
+		SELECT p.POST_IDX, p.TITLE, m.NICKNAME, p.POST_DATE, p.HIT
+		FROM POSTS p INNER JOIN MEMBERS m ON p.MEMBER_IDX = m.MEMBER_IDX
+        WHERE p.POST_TYPE = 'MOVIE'
+		ORDER BY p.POST_DATE DESC
+	</select>
+	
+<!-- @@@ B. 끝 @@@ -->
+
+<!-- @@@ C. 관리자 메인 화면에서 베스트 게시판 페이징처리를 위한 쿼리-->
+
+	<!-- 전체 게시글 수 조회 -->
+	<select id="totalCnt" resultType="int">
+		SELECT COUNT(*) FROM POSTS
+	</select>
+	
+	<!--  -->
+	<select id="totalReportCnt" resultType="int">
+		SELECT COUNT(*)
+		FROM POSTS
+		WHERE POST_TYPE = 'REPORT'
+	</select>
+	
+	<!-- 페이지에 해당하는 게시글 조회 -->
+	<select id="pageList" resultType="PostVO" parameterType="map">
+		SELECT *
+		FROM (SELECT ROWNUM RNUM, p.*
+      			FROM(SELECT p.*, m.NICKNAME
+           			  FROM POSTS p 
+           			  INNER JOIN MEMBERS m ON p.MEMBER_IDX = m.MEMBER_IDX
+           			  ORDER BY HIT DESC) p)
+		WHERE RNUM BETWEEN #{begin} AND #{end}
+	</select>
+	
+	<!--  -->
+	<select id="managePost" resultType="PostVO" parameterType="map">
+		SELECT *
+		FROM (SELECT ROWNUM RNUM, p.*
+      			FROM(SELECT p.*
+           			  FROM POSTS p 
+           			  ORDER BY POST_DATE DESC) p)
+		WHERE RNUM BETWEEN #{begin} AND #{end}
+	</select>
+	
+	<select id="manageReport" resultType="PostVO" parameterType="map">
+		SELECT *
+		FROM (SELECT ROWNUM RNUM, p.*
+      			FROM(SELECT p.*
+           			  FROM POSTS p
+                      WHERE POST_TYPE = 'REPORT'
+           			  ORDER BY POST_DATE DESC) p)
+		WHERE RNUM BETWEEN #{begin} AND #{end}
+	</select>
+	
+	<!-- 게시글 1개 조회 -->
+	<select id="onePost" resultType="PostVO" parameterType="int">
+		SELECT p.POST_IDX, p.TITLE, m.NICKNAME, p.POST_CONTENT, p.POST_FILENAME, 
+       	p.POST_ORINAME, p.POST_DATE, p.HIT
+       	FROM POSTS p 
+       	INNER JOIN MEMBERS m ON p.MEMBER_IDX = m.MEMBER_IDX
+       	WHERE p.POST_IDX = #{postIdx}
+	</select>
+<!-- @@@ C.끝  -->	
+	
+<!-- D.관리자 페이지를 위한 쿼리문 -->
+	<!-- 게시글 최신순으로 모아보기 -->
+ 	<select id="postBox" resultType="PostVO">
+		SELECT POST_IDX, TITLE, POST_DATE
+		FROM POSTS
+		ORDER BY POST_DATE DESC
+	</select>
+	
+	<!-- 게시글 삭제하기  -->
+	<delete id="postDel" parameterType="int">
+		DELETE FROM POSTS
+        WHERE POST_IDX = #{postIdx}
+	</delete>
+	
+	<!-- 게시글 다중 선택 삭제! -->
+	<delete id="delPostIdxList" parameterType="list"> 
+		DELETE FROM POSTS
+		<where> 
+			POST_IDX IN
+			<foreach collection="list" item="postIdx" index="index" separator="," open="(" close=")"> 
+				#{postIdx}
+			</foreach> 
+		</where> 
+	</delete>
+	
+	<!-- 제목,내용,작성자,댓글로 게시물 검색 --> <!--  -->
+	<select id="searchAdmin" parameterType="map" resultType="postListVO">
+		<choose>
+			<when test="idx == 1"> <!-- 제목으로 검색 -->
+				SELECT P.POST_IDX, P.POST_TYPE, P.TITLE, M.NICKNAME, P.POST_DATE, P.HIT 
+				FROM POSTS P
+				INNER JOIN MEMBERS M ON P.MEMBER_IDX = M.MEMBER_IDX
+				WHERE P.TITLE LIKE INITCAP('%'||#{keyword}||'%')
+				ORDER BY POST_DATE DESC
+
+			</when>
+			<when test="idx == 2"> <!-- 내용으로 검색 -->
+				SELECT * 
+				FROM POSTS P
+				INNER JOIN MEMBERS M ON P.MEMBER_IDX = M.MEMBER_IDX
+				WHERE P.POST_CONTENT LIKE INITCAP('%'||#{keyword}||'%')
+				ORDER BY POST_DATE DESC
+			</when>
+			<when test="idx == 3"> <!-- 작성자로 검색 -->
+				SELECT *
+				FROM MEMBERS
+				WHERE NICKNAME LIKE INITCAP('%'||#{keyword}||'%')
+				ORDER BY JOIN_DATE DESC
+			</when>
+			<when test="idx == 4"> <!-- 댓글로 검색 -->
+				SELECT * 
+				FROM COMMENTS
+				WHERE COMM_CONTENT LIKE INITCAP('%'||#{keyword}||'%')
+				ORDER BY COMM_DATE DESC
+			</when>
+		</choose>
+	</select>
+	
+<!-- @@@ D.끝@@@ -->
+    
+    
+</mapper>

@@ -1,0 +1,551 @@
+@charset "UTF-8";
+
+
+/* 게시물과 댓글 구분선(hr꾸미기) */
+
+.Post_hr_Comment {
+  width: auto;
+  margin: 30px 0px;
+  border: 5px solid #cc0f0f;
+  color: rgb(47, 87, 75);
+  border-radius: 5px;
+  box-shadow: 0 0 5px red;
+  padding: 0;
+  animation: glow 1.5s ease-in-out infinite;
+  -webkit-animation: glow 1.5s ease-in-out infinite;
+}
+
+Post_hr_Comment::before {
+  content: '';
+  position: absolute;
+  border: 2px solid #222;
+  width: 290px;
+  margin: -2px 50px;
+  border-radius: 2px;
+  box-shadow: 0 0 3px black;
+  animation: glowMinr 2s ease-in-out;
+  -webkit-animation: glowMinor 2s ease-in-out infinite 
+}
+
+@keyframes glow {
+  0%{box-shadow: 0 0 2px red;}
+  50%{box-shadow: 0 0 8px red;}
+  100%{box-shadow: 0 0 2px red;}
+}
+
+@-webkit-keyframes glow {
+  0%{box-shadow: 0 0 2px red;}
+  50%{box-shadow: 0 0 8px red;}
+  100%{box-shadow: 0 0 2px red;}
+}
+
+@keyframes glowMinor {
+  0%{box-shadow: 0 0 2px black;}
+  50%{box-shadow: 0 0 8px black;}
+  100%{box-shadow: 0 0 2px black;}
+}
+
+@-webkit-keyframes glowMinor {
+  0%{box-shadow: 0 0 2px black;}
+  50%{box-shadow: 0 0 8px black;}
+  100%{box-shadow: 0 0 2px black;}
+}
+
+
+/* 댓글입력창 CSS */
+.write_CommentArea {
+	background-image: url('https://cdn.pixabay.com/photo/2017/08/30/01/05/milky-way-2695569_1280.jpg');
+	font-family: 'Ubuntu Mono', sans-serif;
+	padding: 0.25rem;
+	width: 100%;
+	margin:0 auto;
+}
+#writeForm .caption_nickname {
+	color:white;
+}
+.legend_comment {
+	color: white;
+	border: none; 
+	font-size: 1em; 
+}
+
+.limiteCharacter {
+	color: white;
+}
+
+
+
+
+
+
+
+
+
+
+/* 아래는 댓글 리스트 CSS */
+
+.section_divider {
+  border: none;
+  height: 2px; /* 구획 구분선의 두께 설정 */
+  background-color: #333; /* 구획 구분선의 배경 색상 설정 */
+}
+
+.top_section {
+  /* 상단 섹션 스타일 및 배경 색상 설정 */
+  font-family: 'Ubuntu Mono', sans-serif;
+  padding: 0.25rem;
+  width: 100%;
+  margin:0 auto;
+}
+	
+.bottom_section  {
+  @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono);
+  font-family: 'Ubuntu Mono', sans-serif;
+  padding: 0.25rem;
+  width: 100%;
+  margin:0 auto;
+  background-color:#180E15;
+}
+
+/*
+.editButton {
+	position: absolute;
+	right: 5%;
+	bottom: 15%;
+}
+
+.deleteButton {
+	position: absolute;
+	right: 0%;
+	bottom: 15%;
+}
+
+.editContent {
+	position: absolute;
+	right: 85%;
+	bottom: 14%;
+}
+*/
+
+
+
+
+
+.bottom_section h2{
+  color:#FF476A;
+  text-align:center;
+}
+.bottom_section h5 {
+	text-align: end;
+	color: bisque;
+}
+
+.bottom_section p{
+  color: aqua;
+  text-align:center;
+  font-size: 1.5em;
+}
+
+.bottom_section hr{
+  display:block;
+  margin:0 auto;
+  height:15px;
+  width:105px;
+  border:none;
+  border-radius: 3px;
+  border-left:15px solid #f00000;
+  border-right:15px solid #300000;
+  animation: KITTAnim 1s infinite ease-in-out alternate;
+}
+
+.bottom_section hr:before{
+  content:" ";
+  display:inline-block;
+  width:15px;
+  height:15px;
+  border-left:15px solid #c00000;
+  border-right:15px solid #600000;
+  animation: KITTAnimBefore 1s infinite ease-in-out alternate;
+}
+
+.bottom_section hr:after{
+  content:" ";
+  display:inline-block;
+  width:15px;
+  height:15px;
+  border-left:15px solid #300000;
+  background-color:#300000;
+  border-right:15px solid #300000;
+  animation: KITTAnimAfter 1s infinite ease-in-out alternate;
+}
+
+.bottom_section hr:nth-child(even)
+{
+  animation: KARRAnim 1s infinite ease-in-out alternate;
+}
+
+.bottom_section hr:nth-child(even):after
+{
+  animation: KARRAnimAfter 1s infinite ease-in-out alternate;
+}
+
+.bottom_section hr:nth-child(even):before
+{
+  animation: KARRAnimBefore 1s infinite ease-in-out alternate;
+}
+
+
+@keyframes KITTAnim {
+   0% {
+      background-color:#300000;
+      border-left:15px solid #f00000;
+      border-right:15px solid #300000;
+   }
+   10% {
+      background-color:#300000;
+      border-left:15px solid #f00000;
+      border-right:15px solid #300000;
+   }
+   20% {
+      background-color:#300000;
+      border-left:15px solid #c00000;
+      border-right:15px solid #300000;
+   }
+   30% {
+      background-color:#300000;
+      border-left:15px solid #a00000;
+      border-right:15px solid #300000;
+   }
+   40% {
+      background-color:#300000;
+      border-left:15px solid #600000;
+      border-right:15px solid #300000;
+   }
+   50% {
+      background-color:#600000;
+      border-left:15px solid #300000;
+      border-right:15px solid #300000;
+   }
+   60% {
+      background-color:#a00000;
+      border-left:15px solid #300000;
+      border-right:15px solid #600000;
+   }
+   70% {
+      background-color:#c00000;
+      border-left:15px solid #300000;
+      border-right:15px solid #a00000;
+   }
+   80% {
+      background-color:#f00000;
+      border-left:15px solid #300000;
+      border-right:15px solid #c00000;
+   }
+   90% {
+      background-color:#c00000;
+      border-left:15px solid #300000;
+      border-right:15px solid #f00000;
+   }
+   100% {
+      background-color:#c00000;
+      border-left:15px solid #300000;
+      border-right:15px solid #f00000;
+   }
+}
+
+@keyframes KITTAnimBefore {
+   0% {
+      background-color:#a00000;
+      border-left:15px solid #c00000;
+      border-right:15px solid #600000;
+   }
+   10% {
+      background-color:#a00000;
+      border-left:15px solid #c00000;
+      border-right:15px solid #600000;
+   }
+   20% {
+      background-color:#c00000;
+      border-left:15px solid #f00000;
+      border-right:15px solid #a00000;
+   }
+   30% {
+      background-color:#f00000;
+      border-left:15px solid #c00000;
+      border-right:15px solid #c00000;
+   }
+   40% {
+      background-color:#c00000;
+      border-left:15px solid #a00000;
+      border-right:15px solid #f00000;
+   }
+   50% {
+      background-color:#a00000;
+      border-left:15px solid #600000;
+      border-right:15px solid #c00000;
+   }
+   60% {
+      background-color:#600000;
+      border-left:15px solid #300000;
+      border-right:15px solid #a00000;
+   }
+   70% {
+      background-color:#300000;
+      border-left:15px solid #300000;
+      border-right:15px solid #600000;
+   }
+   80% {
+      background-color:#300000;
+      border-left:15px solid #300000;
+      border-right:15px solid #300000;
+   }
+   90% {
+      background-color:#300000;
+      border-left:15px solid #300000;
+      border-right:15px solid #300000;
+   }
+   100% {
+      background-color:#300000;
+      border-left:15px solid #300000;
+      border-right:15px solid #300000;
+   }
+}
+
+@keyframes KITTAnimAfter {
+   0% {
+      background-color:#300000;
+      border-left:15px solid #300000;
+      border-right:15px solid #300000;
+   }
+   10% {
+      background-color:#300000;
+      border-left:15px solid #300000;
+      border-right:15px solid #300000;
+   }
+   20% {
+      background-color:#300000;
+      border-left:15px solid #600000;
+      border-right:15px solid #300000;
+   }
+   30% {
+      background-color:#600000;
+      border-left:15px solid #a00000;
+      border-right:15px solid #300000;
+   }
+   40% {
+      background-color:#a00000;
+      border-left:15px solid #c00000;
+      border-right:15px solid #600000;
+   }
+   50% {
+      background-color:#c00000;
+      border-left:15px solid #f00000;
+      border-right:15px solid #a00000;
+   }
+   60% {
+      background-color:#f00000;
+      border-left:15px solid #c00000;
+      border-right:15px solid #c00000;
+   }
+   70% {
+      background-color:#c00000;
+      border-left:15px solid #a00000;
+      border-right:15px solid #f00000;
+   }
+   80% {
+      background-color:#a00000;
+      border-left:15px solid #600000;
+      border-right:15px solid #c00000;
+   }
+   90% {
+      background-color:#600000;
+      border-left:15px solid #300000;
+      border-right:15px solid #a00000;
+   }
+   100% {
+      background-color:#600000;
+      border-left:15px solid #300000;
+      border-right:15px solid #a00000;
+   }
+}
+@keyframes KARRAnim {
+   0% {
+      background-color:#333300;
+      border-left:15px solid #ffff00;
+      border-right:15px solid #333300;
+   }
+   10% {
+      background-color:#333300;
+      border-left:15px solid #ffff00;
+      border-right:15px solid #333300;
+   }
+   20% {
+      background-color:#333300;
+      border-left:15px solid #cccc00;
+      border-right:15px solid #333300;
+   }
+   30% {
+      background-color:#333300;
+      border-left:15px solid #808000;
+      border-right:15px solid #333300;
+   }
+   40% {
+      background-color:#333300;
+      border-left:15px solid #4c4c00;
+      border-right:15px solid #333300;
+   }
+   50% {
+      background-color:#4c4c00;
+      border-left:15px solid #333300;
+      border-right:15px solid #333300;
+   }
+   60% {
+      background-color:#808000;
+      border-left:15px solid #333300;
+      border-right:15px solid #4c4c00;
+   }
+   70% {
+      background-color:#cccc00;
+      border-left:15px solid #333300;
+      border-right:15px solid #808000;
+   }
+   80% {
+      background-color:#ffff00;
+      border-left:15px solid #333300;
+      border-right:15px solid #cccc00;
+   }
+   90% {
+      background-color:#cccc00;
+      border-left:15px solid #333300;
+      border-right:15px solid #ffff00;
+   }
+   100% {
+      background-color:#cccc00;
+      border-left:15px solid #333300;
+      border-right:15px solid #ffff00;
+   }
+}
+
+@keyframes KARRAnimBefore {
+   0% {
+      background-color:#808000;
+      border-left:15px solid #cccc00;
+      border-right:15px solid #4c4c00;
+   }
+   10% {
+      background-color:#808000;
+      border-left:15px solid #cccc00;
+      border-right:15px solid #4c4c00;
+   }
+   20% {
+      background-color:#cccc00;
+      border-left:15px solid #ffff00;
+      border-right:15px solid #808000;
+   }
+   30% {
+      background-color:#ffff00;
+      border-left:15px solid #cccc00;
+      border-right:15px solid #cccc00;
+   }
+   40% {
+      background-color:#cccc00;
+      border-left:15px solid #808000;
+      border-right:15px solid #ffff00;
+   }
+   50% {
+      background-color:#808000;
+      border-left:15px solid #4c4c00;
+      border-right:15px solid #cccc00;
+   }
+   60% {
+      background-color:#4c4c00;
+      border-left:15px solid #333300;
+      border-right:15px solid #808000;
+   }
+   70% {
+      background-color:#333300;
+      border-left:15px solid #333300;
+      border-right:15px solid #4c4c00;
+   }
+   80% {
+      background-color:#333300;
+      border-left:15px solid #333300;
+      border-right:15px solid #333300;
+   }
+   90% {
+      background-color:#333300;
+      border-left:15px solid #333300;
+      border-right:15px solid #333300;
+   }
+   100% {
+      background-color:#333300;
+      border-left:15px solid #333300;
+      border-right:15px solid #333300;
+   }
+}
+
+@keyframes KARRAnimAfter {
+   0% {
+      background-color:#333300;
+      border-left:15px solid #333300;
+      border-right:15px solid #333300;
+   }
+   10% {
+      background-color:#333300;
+      border-left:15px solid #333300;
+      border-right:15px solid #333300;
+   }
+   20% {
+      background-color:#333300;
+      border-left:15px solid #4c4c00;
+      border-right:15px solid #333300;
+   }
+   30% {
+      background-color:#4c4c00;
+      border-left:15px solid #808000;
+      border-right:15px solid #333300;
+   }
+   40% {
+      background-color:#808000;
+      border-left:15px solid #cccc00;
+      border-right:15px solid #4c4c00;
+   }
+   50% {
+      background-color:#cccc00;
+      border-left:15px solid #ffff00;
+      border-right:15px solid #808000;
+   }
+   60% {
+      background-color:#ffff00;
+      border-left:15px solid #cccc00;
+      border-right:15px solid #cccc00;
+   }
+   70% {
+      background-color:#cccc00;
+      border-left:15px solid #808000;
+      border-right:15px solid #ffff00;
+   }
+   80% {
+      background-color:#808000;
+      border-left:15px solid #4c4c00;
+      border-right:15px solid #cccc00;
+   }
+   90% {
+      background-color:#4c4c00;
+      border-left:15px solid #333300;
+      border-right:15px solid #808000;
+   }
+   100% {
+      background-color:#4c4c00;
+      border-left:15px solid #333300;
+      border-right:15px solid #808000;
+   }
+}
+
+.horizontal-hr {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+

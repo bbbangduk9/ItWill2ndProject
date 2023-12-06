@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="bbs">
+
+	<!-- select 태그 3개 속성 id, resultType, parameterType
+	id : 사용할 명칭(필수항목), 현재 매퍼파일에서 유일한 이름 사용
+	resultType : 조회 결과값 저장하기 위한 데이터 타입(1개 데이터에 대한 타입지정)
+	parameterType : 전달 받은 파라미터 데이터의 타입 지정(선택적)
+	-->
+	
+	
+	
+	<!-- 전체 게시글 건수 조회 -->
+	<select id="totalCount" resultType="int">
+		SELECT COUNT(*) AS CNT FROM BBS
+	</select>
+	
+	<!-- 페이지에 해당하는 게시글 조회 -->
+	<select id="list" resultType="BbsVO" parameterType="map">
+		SELECT *
+		  FROM (SELECT ROWNUM AS RNUM, B.*
+		          FROM (SELECT *
+		                FROM BBS
+		                ORDER BY BBS_IDX DESC) B
+		       )
+		 WHERE RNUM BETWEEN #{begin} AND #{end}
+	</select>
+	
+	<!-- 게시글 1개 조회 -->
+	<select id="one" resultType="BbsVO" parameterType="int">
+		SELECT BBS_IDX, SUBJECT, WRITER, CONTENT, FILE_NAME, 
+               ORI_NAME, PWD, WRITE_DATE, IP, HIT
+        FROM BBS
+        WHERE BBS_IDX = #{bbsIdx}
+	</select>
+	
+	<!-- 게시물 조회수 증가 -->
+	<update id="hitAdd" parameterType="int">
+		UPDATE BBS
+		SET HIT = HIT + 1
+		WHERE BBS_IDX = #{bbsIdx}
+	</update>
+	
+	<!-- 게시글 입력-->
+	<insert id="insert" parameterType="BbsVO">
+		INSERT INTO BBS
+   			(BBS_IDX, SUBJECT, WRITER, CONTENT, FILE_NAME, 
+    		ORI_NAME, PWD, WRITE_DATE, IP, HIT )
+		VALUES (BBS_SEQ.NEXTVAL, #{subject}, #{writer}, #{content}, #{fileName}, 
+    		#{oriName}, #{pwd}, SYSDATE, #{ip}, 0)
+	</insert>
+	
+	<!--====== 댓글 관련 ===========-->
+	<!--게시글에 딸린 댓글 데이터 조회-->
+	<select id="commList" resultType="CommentVO" parameterType="int">
+		SELECT COMMENT_IDX, WRITER, CONTENT, PWD, WRITE_DATE, 
+       			IP, BBS_IDX 
+		FROM COMMENTS 
+		WHERE BBS_IDX = #{bbsIdx} 
+		ORDER BY COMMENT_IDX DESC
+	</select>
+	
+	
+	
+</mapper>
+
+
+
+
+
+

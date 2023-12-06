@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+	<settings>
+		<setting name="jdbcTypeForNull" value="NULL"/>
+		<setting name="mapUnderscoreToCamelCase" value="true"/>
+	</settings>
+	
+	<typeAliases>
+		<typeAlias type="com.postlounge.model.vo.MemberVO" alias="memberVO"/>
+		<typeAlias type="com.postlounge.model.vo.CommentVO" alias="commentVO"/>
+		<typeAlias type="com.postlounge.model.vo.FriendVO" alias="friendVO"/>
+		<typeAlias type="com.postlounge.model.vo.PostVO" alias="postVO"/>
+		<typeAlias type="com.postlounge.model.vo.PostListVO" alias="postListVO"/>
+		<typeAlias type="com.postlounge.model.vo.FriendVO" alias="friendVO"/>
+		<typeAlias type="com.postlounge.model.vo.FriendListVO" alias="friendListVO"/>
+		<typeAlias type="com.postlounge.model.vo.AllMixVO" alias="AllMixVO"/>
+		<typeAlias type="com.postlounge.model.vo.BbsVO" alias="BbsVO" />	
+	</typeAliases>
+	
+	
+  <environments default="development">
+    <environment id="development">
+      <transactionManager type="JDBC"/>
+      <dataSource type="POOLED">
+        <property name="driver" value="oracle.jdbc.OracleDriver"/>
+        <property name="url" value="jdbc:oracle:thin:@192.168.18.12:1521:xe"/> <!--@192.168.18.12 학원에서사용  -->
+        <property name="username" value="postlounge"/>
+        <property name="password" value="postloungepw"/>
+      </dataSource>
+    </environment>
+  </environments>
+  
+  
+  <mappers>
+     <mapper resource="com/postlounge/mybatis/postMapper.xml"/>
+     <mapper resource="com/postlounge/mybatis/memberMapper.xml"/>
+     <mapper resource="com/postlounge/mybatis/followMapper.xml"/>
+     <mapper resource="com/postlounge/mybatis/commentMapper.xml"/>
+     <mapper resource="com/postlounge/mybatis/bbsMapper.xml"/>
+  </mappers>
+
+</configuration>
